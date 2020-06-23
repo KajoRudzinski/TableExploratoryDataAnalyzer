@@ -1,2 +1,6 @@
+from src import Msg
+
+
 def run():
-    pass
+    print(Msg.start())
+    print(Msg.end())
