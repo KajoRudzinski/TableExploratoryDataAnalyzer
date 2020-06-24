@@ -1,3 +1,4 @@
+from tkinter import ttk
 from tkinter import filedialog
 from tkinter import *
 
@@ -14,10 +15,11 @@ def browse_file():
         initialdir="/",
         title="Select file with your data",
         filetypes=accepted_filetypes())
-    return filepath
+    print(filepath)
 
 
-root = Tk()
-root.filename = browse_file()
-print(root.filename)
-root.mainloop()
+def run_gui():
+    root = Tk()
+    button_read_file = ttk.Button(text="Read file", command=browse_file)
+    button_read_file.grid(column=1, row=1)
+    root.mainloop()
