@@ -19,43 +19,63 @@ class GUI(Tk):
     def __init__(self):
         super(GUI, self).__init__()
         self.title("Table Exploratory Data Analyzer")
-        self.minsize(640, 400)
-
-        self.app_status = StringVar()
-
+        self.minsize(800, 600)
         # self.wm_iconbitmap('icon.ico')
-        self.labelFrame_SelectFile = None
-        self.labelFrame_Status = None
-        self.button_SelectFile = None
-        
-        # To be changed to set appropriate column and row weight and padding
-        # self.columnconfigure(1, weight=1)
-        # self.columnconfigure(3, pad=7)
-        # self.rowconfigure(3, weight=1)
-        # self.rowconfigure(5, pad=7)
+        self.setup_guiStyle()
 
-        self.setup_gui_style()
+        # variables
+        self.mainAppStatus = StringVar()
+
+        # main frames
+        self.upperFrame = None
+        self.middleFrame = None
+        self.lowerFrame = None
+
+        self.load_upperFrame()
+        self.load_middleFrame()
+        self.load_lowerFrame()
+
+        # upperFrame elements
+        self.labelFrame_selectFile = None
+        self.button_selectFile = None
+        self.labelFrame_status = None
+
         self.create_labelFrame_selectFile()
-        self.create_label_status()
         self.create_button_selectFile()
+        self.create_label_status()
 
         self.selected_filePath = None
 
     @staticmethod
-    def setup_gui_style():
+    def setup_guiStyle():
         ttk.Style().configure("TButton", padding=6, relief="flat", background="#ccc")
 
+    def load_upperFrame(self):
+        self.upperFrame = Frame(self, bg="blue")
+        self.upperFrame.place(
+            relx=0.5, relwidth=1, relheight=0.1, anchor="n")
+
+    def load_middleFrame(self):
+        self.middleFrame = Frame(
+            self, bg="green")
+        self.middleFrame.place(
+            relx=0.5, rely=0.5, relwidth=0.9, relheight=0.7, anchor="center")
+
+    def load_lowerFrame(self):
+        self.lowerFrame = Label(self, bg="blue", )
+        self.lowerFrame.place(relx=0.5, rely=1, relwidth=1, relheight=0.1, anchor='s')
+
     def create_labelFrame_selectFile(self):
-        self.labelFrame_SelectFile = ttk.LabelFrame(self, text="Open File")
-        self.labelFrame_SelectFile.grid(column=0, row=1)
+        self.labelFrame_selectFile = ttk.LabelFrame(self, text="Open File")
+        self.labelFrame_selectFile.grid(column=0, row=1)
 
     def create_label_status(self):
-        self.labelFrame_Status = ttk.Label(self, text="welcome", relief="sunken")
-        self.labelFrame_Status.grid(column=2, row=1, padx=10)
+        self.labelFrame_status = ttk.Label(self, text="welcome", relief="sunken")
+        self.labelFrame_status.grid(column=2, row=1, padx=10)
 
     def create_button_selectFile(self):
-        self.button_SelectFile = ttk.Button(self.labelFrame_SelectFile, text="Browse A File", command=self.fileDialog)
-        self.button_SelectFile.grid(column=1, row=1)
+        self.button_selectFile = ttk.Button(self.labelFrame_selectFile, text="Browse A File", command=self.fileDialog)
+        self.button_selectFile.grid(column=1, row=1)
 
     def fileDialog(self):
         self.selected_filePath = filedialog.askopenfilename(
