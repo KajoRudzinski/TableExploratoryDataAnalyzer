@@ -1,9 +1,9 @@
-from src import msg_formats_graphics
+from src import msg
 
 
-def test_MsgWhenApplicationStarts():
-    assert msg_formats_graphics.start() == "\nTEDA started"
+def test_internal_msg_app_starts():
+    assert msg.start_app_msg() == "\nTEDA started"
 
 
-def test_MsgWhenApplicationEnds():
-    assert msg_formats_graphics.end() == "\nTEDA closed"
+def test_internal_msg_app_closes():
+    assert msg.close_app_msg() == "\nTEDA closed"
