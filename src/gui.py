@@ -10,7 +10,13 @@ class GUI(Tk):
     def __init__(self):
         super(GUI, self).__init__()
         self.title(msg.app_title)
-        self.minsize(800, 600)
+        self.min_main_window_width = 800
+        self.min_main_window_height = 600
+        self.minsize(self.min_main_window_width, self.min_main_window_height)
+        self.center_window(self.min_main_window_width, self.min_main_window_height)
+
+
+
         # self.wm_iconbitmap('icon.ico')
 
         # variables #
@@ -157,6 +163,29 @@ class GUI(Tk):
         ttk.Style().configure(
             "TButton", relief="flat", font=self.font_default)
 
+    def center_window(self, window_width: int, window_height: int, window=None):
+        self.update_idletasks()
+        if window is None:
+            self.center_main_window(window_height, window_width)
+        else:
+            self.center_selected_window(window, window_height, window_width)
+
+    def center_selected_window(self, window, window_height, window_width):
+        window.geometry('{}x{}+{}+{}'.format(
+            window_width,
+            window_height,
+            self.center_width(window_width),
+            self.center_height(window_height)))
+
+    def center_main_window(self, window_height, window_width):
+        self.center_selected_window(self, window_height, window_width)
+
+    def center_height(self, window_height):
+        return (self.winfo_screenheight() // 2) - (window_height // 2)
+
+    def center_width(self, window_width):
+        return (self.winfo_screenwidth() // 2) - (window_width // 2)
+
     @staticmethod
     def get_main_frame(parent):
         return Frame(parent, bg="#0c0e1a")
@@ -172,18 +201,23 @@ class GUI(Tk):
             app.filepath_provided_by_the_user(selected_file)
 
             self.question = Toplevel()
+            w = 600
+            h = 300
+            self.question.minsize(w, h)
+            self.question.focus_force()
+            self.question.lift(aboveThis=self)
+            self.center_window(w, h, self.question)
 
             delimiter_label = Label(
                 self.question,
-                text="Column delimiter (usually , or ;): ",
+                text="\tColumn delimiter (usually , or ;): ",
                 height=4)
             delimiter_label.pack(side=LEFT)
 
             delimiter_entry=Entry(self.question, text="", width=50)
             delimiter_entry.pack(side=LEFT)
 
-            self.question.focus_force()
-            self.question.lift(aboveThis=self)
+
 
 
 def run_gui():
