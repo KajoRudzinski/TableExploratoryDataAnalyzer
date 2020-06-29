@@ -14,9 +14,6 @@ class GUI(Tk):
         self.min_main_window_height = 600
         self.minsize(self.min_main_window_width, self.min_main_window_height)
         self.center_window(self.min_main_window_width, self.min_main_window_height)
-
-
-
         # self.wm_iconbitmap('icon.ico')
 
         # variables #
@@ -29,6 +26,7 @@ class GUI(Tk):
         self.app_response.set(msg.initial_text_response)
 
         self.question = None
+        self.setting = None
 
         # gui elements #
 
@@ -201,8 +199,8 @@ class GUI(Tk):
             app.filepath_provided_by_the_user(selected_file)
 
             self.question = Toplevel()
-            w = 600
-            h = 300
+            w = 400
+            h = 200
             self.question.minsize(w, h)
             self.question.focus_force()
             self.question.lift(aboveThis=self)
@@ -210,17 +208,42 @@ class GUI(Tk):
 
             delimiter_label = Label(
                 self.question,
-                text="\tColumn delimiter (usually , or ;): ",
-                height=4)
-            delimiter_label.pack(side=LEFT)
+                font=self.font_default,
+                text="\tColumn delimiter (usually , or ;): ")
+            delimiter_label.grid(row=0, column=0, pady=10)
+            delimiter_entry = Entry(self.question, text=",", width=10)
+            delimiter_entry.grid(row=0, column=1, pady=10)
 
-            delimiter_entry=Entry(self.question, text="", width=50)
-            delimiter_entry.pack(side=LEFT)
+            skip_rows_label = Label(
+                self.question,
+                font=self.font_default,
+                text="\tRows to skip from the top: ")
+            skip_rows_label.grid(row=1, column=0, pady=10)
+            skip_rows_entry = Entry(self.question, text="0", width=10)
+            skip_rows_entry.grid(row=1, column=1, pady=10)
 
+            first_row_label = Label(
+                self.question,
+                font=self.font_default,
+                text="\tUse first row as headers (y/n): ")
+            first_row_label.grid(row=2, column=0, pady=10)
+            first_row_entry = Entry(self.question, text="y", width=10)
+            first_row_entry.grid(row=2, column=1, pady=10)
 
+            ok = ttk.Button(self.question, text="OK")
+            ok.grid(row=3, column=0, pady=20)
+
+            cancel = ttk.Button(
+                self.question,
+                text="CANCEL",
+                command=self.close_question)
+            cancel.grid(row=3, column=1, pady=20)
+
+    def close_question(self):
+        self.question.destroy()
+        self.question = None
 
 
 def run_gui():
     gui = GUI()
     gui.mainloop()
-
