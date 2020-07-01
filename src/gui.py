@@ -1,4 +1,4 @@
-from tkinter import *
+import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 
@@ -6,167 +6,92 @@ from src import app
 from src import msg
 
 
-class GUI(Tk):
+def run_gui():
+    gui = GUI()
+    gui.mainloop()
+
+
+def open_file():
+    selected_file = filedialog.askopenfilename(
+        initialdir="/",
+        title="Select A File",
+        filetype=app.accepted_filetypes())
+    app.filepath_provided_by_the_user(selected_file)
+
+
+def save_file():
+    pass
+
+
+def get_main_color():
+    return "#0c0e1a"
+
+
+def get_main_font():
+    return "Gotham", 9, "normal"
+
+
+class GUI(tk.Tk):
     def __init__(self):
         super(GUI, self).__init__()
-        self.title(msg.app_title)
-        self.min_main_window_width = 800
-        self.min_main_window_height = 600
-        self.minsize(self.min_main_window_width, self.min_main_window_height)
-        self.center_window(self.min_main_window_width, self.min_main_window_height)
-        # self.wm_iconbitmap('icon.ico')
+        self.title(msg.get_app_name())
+        self.width = 800
+        self.height = 600
+        self.set_size()
+        self.center_window(self.width, self.height)
 
-        # variables #
-        self.font_default = ("Gotham", 9, "normal")
+        self.font_default = get_main_font()
+        self.setup_gui_style()
 
-        self.app_status = StringVar()
-        self.app_status.set(msg.initial_status)
+        self.header = Header(self)
+        self.body = Body(self)
+        self.footer = Footer(self)
+        self.load_widgets()
 
-        self.app_response = StringVar()
-        self.app_response.set(msg.initial_text_response)
+    def load_widgets(self):
+        self.load_header()
+        self.load_body()
+        self.load_footer()
 
-        self.question = None
-        self.setting = None
-
-        # gui elements #
-
-        # header
-        self.header = self.get_main_frame(self)
+    def load_header(self):
         self.header.place(
             relx=0.5,
             relwidth=1,
             height=50,
-            anchor="n")
+            anchor=tk.N)
 
-        # header # open file button
-        self.button_open_file = ttk.Button(
-            self.header,
-            text="Open File",
-            command=self.select_file)
-
-        self.button_open_file.pack(
-            side=LEFT,
-            anchor=CENTER,
-            padx=10)
-
-        # header # save file button
-        self.button_save_to_file = ttk.Button(
-            self.header,
-            text="Save Analysis",
-            command=self.select_file)
-
-        self.button_save_to_file.pack(
-            side=LEFT,
-            anchor=CENTER,
-            padx=10)
-
-        # header # frame for status
-        self.frame_for_status = Label(self.header)
-        self.frame_for_status.pack(
-            side=LEFT,
-            anchor=W,
-            ipadx=10,
-            padx=10,
-            pady=5)
-
-        # header # frame for status # status
-        self.status = Label(
-            self.frame_for_status,
-            textvariable=self.app_status,
-            font=self.font_default)
-
-        self.status.pack(
-            side=RIGHT,
-            fill=BOTH,
-            expand=1,
-            anchor=CENTER)
-
-        # body
-        self.body = self.get_main_frame(self)
+    def load_body(self):
         self.body.place(
             relx=0.5,
             rely=0.5,
             relwidth=0.9,
             relheight=0.7,
-            anchor=CENTER)
+            anchor=tk.CENTER)
 
-        # body # response frame
-        self.fr_response = self.get_main_frame(self.body)
-        self.fr_response.place(
-            relx=0.5,
-            rely=0.5,
-            relwidth=0.9,
-            relheight=0.9,
-            anchor=CENTER)
-
-        # body # response frame # frame for scrollable canvas
-        self.fr_for_scrollable_canvas = ttk.Frame(self.fr_response)
-        self.fr_for_scrollable_canvas.pack(
-            side=LEFT,
-            fill=BOTH,
-            expand=1,
-            anchor=CENTER)
-
-        # body # response frame # frame for scrollable canvas
-        # scrollable canvas
-        self.scrollable_canvas = Canvas(self.fr_for_scrollable_canvas)
-        self.scrollable_canvas.pack(
-            side="left",
-            fill="both",
-            expand=True)
-
-        # body # response frame # frame for scrollable canvas
-        # scrollable canvas # scrollbar
-        self.scrollbar = ttk.Scrollbar(
-            self.fr_for_scrollable_canvas,
-            orient="vertical",
-            command=self.scrollable_canvas.yview)
-        self.scrollbar.pack(side=RIGHT, fill=Y)
-
-        # body # response frame # frame for scrollable canvas
-        # scrollable canvas # scrollable frame
-        self.scrollable_frame = ttk.Frame(self.scrollable_canvas)
-        self.scrollable_frame.bind(
-            "<Configure>", lambda e: self.scrollable_canvas.configure(
-                scrollregion=self.scrollable_canvas.bbox("all")))
-
-        # body # response frame # frame for scrollable canvas
-        # scrollable canvas configuration
-        self.scrollable_canvas.create_window(
-            (0, 0),
-            window=self.scrollable_frame,
-            anchor="nw")
-
-        self.scrollable_canvas.configure(
-            yscrollcommand=self.scrollbar.set)
-
-        # body # response frame # frame for scrollable canvas
-        # scrollable canvas # scrollable frame # response txt
-        self.response_txt = ttk.Label(
-            self.scrollable_frame,
-            textvariable=self.app_response, font=self.font_default).pack()
-
-        # footer
-        self.footer = self.get_main_frame(self)
+    def load_footer(self):
         self.footer.place(
             relx=0.5,
             rely=1,
             relwidth=1,
             height=50,
-            anchor='s')
-
-        self.setup_gui_style()
+            anchor=tk.S)
 
     def setup_gui_style(self):
         ttk.Style().configure(
             "TButton", relief="flat", font=self.font_default)
 
-    def center_window(self, window_width: int, window_height: int, window=None):
+    def set_size(self):
+        self.minsize(self.width, self.height)
+
+    def center_window(self, width: int, height: int, toplevel=None):
         self.update_idletasks()
-        if window is None:
-            self.center_main_window(window_height, window_width)
+        if toplevel is None:
+            self.center_main_window(height, width)
         else:
-            self.center_selected_window(window, window_height, window_width)
+            self.center_selected_window(toplevel, height, width)
+
+    def center_main_window(self, height, width):
+        self.center_selected_window(self, height, width)
 
     def center_selected_window(self, window, window_height, window_width):
         window.geometry('{}x{}+{}+{}'.format(
@@ -175,75 +100,103 @@ class GUI(Tk):
             self.center_width(window_width),
             self.center_height(window_height)))
 
-    def center_main_window(self, window_height, window_width):
-        self.center_selected_window(self, window_height, window_width)
+    def center_height(self, height):
+        return (self.winfo_screenheight() // 2) - (height // 2)
 
-    def center_height(self, window_height):
-        return (self.winfo_screenheight() // 2) - (window_height // 2)
-
-    def center_width(self, window_width):
-        return (self.winfo_screenwidth() // 2) - (window_width // 2)
-
-    @staticmethod
-    def get_main_frame(parent):
-        return Frame(parent, bg="#0c0e1a")
-
-    def select_file(self):
-
-        while self.question is None:
-
-            selected_file = filedialog.askopenfilename(
-                initialdir="/",
-                title="Select A File",
-                filetype=app.accepted_filetypes())
-            app.filepath_provided_by_the_user(selected_file)
-
-            self.question = Toplevel()
-            w = 400
-            h = 200
-            self.question.minsize(w, h)
-            self.question.focus_force()
-            self.question.lift(aboveThis=self)
-            self.center_window(w, h, self.question)
-
-            delimiter_label = Label(
-                self.question,
-                font=self.font_default,
-                text="\tColumn delimiter (usually , or ;): ")
-            delimiter_label.grid(row=0, column=0, pady=10)
-            delimiter_entry = Entry(self.question, text=",", width=10)
-            delimiter_entry.grid(row=0, column=1, pady=10)
-
-            skip_rows_label = Label(
-                self.question,
-                font=self.font_default,
-                text="\tRows to skip from the top: ")
-            skip_rows_label.grid(row=1, column=0, pady=10)
-            skip_rows_entry = Entry(self.question, text="0", width=10)
-            skip_rows_entry.grid(row=1, column=1, pady=10)
-
-            first_row_label = Label(
-                self.question,
-                font=self.font_default,
-                text="\tUse first row as headers (y/n): ")
-            first_row_label.grid(row=2, column=0, pady=10)
-            first_row_entry = Entry(self.question, text="y", width=10)
-            first_row_entry.grid(row=2, column=1, pady=10)
-
-            ok = ttk.Button(self.question, text="OK")
-            ok.grid(row=3, column=0, pady=20)
-
-            cancel = ttk.Button(
-                self.question,
-                text="CANCEL",
-                command=self.close_question)
-            cancel.grid(row=3, column=1, pady=20)
-
-    def close_question(self):
-        self.question.destroy()
-        self.question = None
+    def center_width(self, width):
+        return (self.winfo_screenwidth() // 2) - (width // 2)
 
 
-def run_gui():
-    gui = GUI()
-    gui.mainloop()
+class Header(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg=get_main_color())
+        self.parent = parent
+
+        # buttons open & save
+        self.button_open_file = ttk.Button(
+            self, text="Open File", command=open_file)
+
+        self.button_save_to_file = ttk.Button(
+            self, text="Save Analysis", command=save_file)
+
+        # status label
+        self.app_status = tk.StringVar()
+        self.app_status.set(msg.get_initial_status())
+
+        self.status_container = tk.Label(self)
+        self.status = tk.Label(
+            self.status_container,
+            textvariable=self.app_status,
+            font=get_main_font())
+
+        self.load_widgets()
+
+    def load_widgets(self):
+        self.load_button_open_file()
+        self.load_button_save_to_file()
+        self.load_status_container()
+        self.load_status()
+
+    def load_button_open_file(self):
+        self.button_open_file.pack(
+            side=tk.LEFT, anchor=tk.CENTER, padx=10)
+
+    def load_button_save_to_file(self):
+        self.button_save_to_file.pack(
+            side=tk.LEFT, anchor=tk.CENTER, padx=10)
+
+    def load_status_container(self):
+        self.status_container.pack(
+            side=tk.LEFT, anchor=tk.W, ipadx=10, padx=10, pady=5)
+
+    def load_status(self):
+        self.status.pack(
+            side=tk.RIGHT, fill=tk.BOTH, expand=1, anchor=tk.CENTER)
+
+
+class Body(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg=get_main_color())
+        self.parent = parent
+
+        self.app_response = tk.StringVar()
+        self.app_response.set(msg.get_initial_text_response())
+
+        self.fr_response = tk.Frame(self)
+        self.fr_response.place(
+            relx=0.5, rely=0.5, relwidth=0.9, relheight=0.9, anchor=tk.CENTER)
+
+        self.fr_for_scrollable_canvas = tk.Frame(self.fr_response)
+        self.fr_for_scrollable_canvas.pack(
+            side=tk.LEFT, fill=tk.BOTH, expand=1, anchor=tk.CENTER)
+
+        self.scrollable_canvas = tk.Canvas(self.fr_for_scrollable_canvas)
+        self.scrollable_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+
+        self.scrollbar = ttk.Scrollbar(
+            self.fr_for_scrollable_canvas,
+            orient=tk.VERTICAL,
+            command=self.scrollable_canvas.yview)
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.scrollable_frame = ttk.Frame(self.scrollable_canvas)
+        self.scrollable_frame.bind(
+            "<Configure>", lambda e: self.scrollable_canvas.configure(
+                scrollregion=self.scrollable_canvas.bbox("all")))
+
+        self.scrollable_canvas.create_window(
+            (0, 0), window=self.scrollable_frame, anchor=tk.NW)
+
+        self.scrollable_canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.response_txt = ttk.Label(
+            self.scrollable_frame,
+            textvariable=self.app_response,
+            font=get_main_font())
+        self.response_txt.pack()
+
+
+class Footer(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg=get_main_color())
+        self.parent = parent

@@ -1,13 +1,11 @@
-app_title = "Table Exploratory Data Analyzer"
+def get_initial_status():
+    status = "Status: "
+    return "{}Ready for work".format(status)
 
-status = "Status: "
 
-initial_status = "{}Ready for work".format(status)
-
-initial_text_response = "\n" \
-                        "\tHi stranger!" \
-                        "\n\n" \
-                        "\tOpen a csv / txt file to start the analysis :-)"
+def get_initial_text_response():
+    return "\n\tHi stranger!\n\n" \
+        "\tOpen a csv / txt file to start the analysis :-)"
 
 
 def start_app_msg():
@@ -16,3 +14,7 @@ def start_app_msg():
 
 def close_app_msg():
     return "\nTEDA closed"
+
+
+def get_app_name():
+    return "Table Exploratory Data Analysis"
