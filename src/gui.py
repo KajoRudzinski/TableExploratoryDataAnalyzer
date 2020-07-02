@@ -46,9 +46,9 @@ class GUI(tk.Tk):
         self.header = Header(self)
         self.body = Body(self)
         self.footer = Footer(self)
-        self.load_widgets()
+        self.load_gui_widgets()
 
-    def load_widgets(self):
+    def load_gui_widgets(self):
         self.load_header()
         self.load_body()
         self.load_footer()
@@ -129,9 +129,9 @@ class Header(tk.Frame):
             textvariable=self.app_status,
             font=get_main_font())
 
-        self.load_widgets()
+        self.load_header_widgets()
 
-    def load_widgets(self):
+    def load_header_widgets(self):
         self.load_button_open_file()
         self.load_button_save_to_file()
         self.load_status_container()
@@ -163,36 +163,59 @@ class Body(tk.Frame):
         self.app_response.set(msg.get_initial_text_response())
 
         self.fr_response = tk.Frame(self)
-        self.fr_response.place(
-            relx=0.5, rely=0.5, relwidth=0.9, relheight=0.9, anchor=tk.CENTER)
-
         self.fr_for_scrollable_canvas = tk.Frame(self.fr_response)
-        self.fr_for_scrollable_canvas.pack(
-            side=tk.LEFT, fill=tk.BOTH, expand=1, anchor=tk.CENTER)
-
         self.scrollable_canvas = tk.Canvas(self.fr_for_scrollable_canvas)
-        self.scrollable_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
         self.scrollbar = ttk.Scrollbar(
             self.fr_for_scrollable_canvas,
             orient=tk.VERTICAL,
             command=self.scrollable_canvas.yview)
-        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         self.scrollable_frame = ttk.Frame(self.scrollable_canvas)
-        self.scrollable_frame.bind(
-            "<Configure>", lambda e: self.scrollable_canvas.configure(
-                scrollregion=self.scrollable_canvas.bbox("all")))
 
-        self.scrollable_canvas.create_window(
-            (0, 0), window=self.scrollable_frame, anchor=tk.NW)
+        self.load_body_widgets()
 
-        self.scrollable_canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.bind_scrollable_canvas_to_scrolling_action()
 
         self.response_txt = ttk.Label(
             self.scrollable_frame,
             textvariable=self.app_response,
             font=get_main_font())
+
+        # response text has to loaded after
+        # the setup of the scrollable canvas and configuring scrolling action
+        self.load_response_text()
+
+    def load_body_widgets(self):
+        self.load_fr_response()
+        self.load_fr_for_scrollable_canvas()
+        self.load_scrollable_canvas()
+        self.load_scrollbar()
+
+    def load_fr_response(self):
+        self.fr_response.place(
+            relx=0.5, rely=0.5, relwidth=0.9, relheight=0.9, anchor=tk.CENTER)
+
+    def load_fr_for_scrollable_canvas(self):
+        self.fr_for_scrollable_canvas.pack(
+            side=tk.LEFT, fill=tk.BOTH, expand=1, anchor=tk.CENTER)
+
+    def load_scrollable_canvas(self):
+        self.scrollable_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+
+    def load_scrollbar(self):
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    def configure_scrollable_canvas(self):
+        self.scrollable_canvas.configure(
+            scrollregion=self.scrollable_canvas.bbox("all"))
+
+    def bind_scrollable_canvas_to_scrolling_action(self):
+        self.scrollable_frame.bind("<Configure>", self.configure_scrollable_canvas())
+        self.scrollable_canvas.create_window((0, 0), window=self.scrollable_frame, anchor=tk.NW)
+        self.scrollable_canvas.configure(yscrollcommand=self.scrollbar.set)
+
+    def load_response_text(self):
         self.response_txt.pack()
 
 
