@@ -1,3 +1,4 @@
 .idea/*
 src/__pycache__
 tests/quick_check.py
+*.csv

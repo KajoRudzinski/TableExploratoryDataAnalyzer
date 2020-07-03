@@ -1,9 +1,6 @@
 import tkinter as tk
-from tkinter import ttk
-from tkinter import filedialog
-
-from src import app
-from src import msg
+from tkinter import ttk, filedialog
+from src import app, msg
 
 
 def run_gui():
@@ -15,12 +12,20 @@ def open_file():
     selected_file = filedialog.askopenfilename(
         initialdir="/",
         title="Select A File",
-        filetype=app.accepted_filetypes())
+        filetype=get_accepted_filetypes_tuple())
     app.filepath_provided_by_the_user(selected_file)
 
 
 def save_file():
     pass
+
+
+def get_accepted_filetypes_tuple():
+    accepted_filetypes_list = []
+    for x in app.get_accepted_filetypes():
+        y = "{} files".format(x), "*.{}".format(x)
+        accepted_filetypes_list.append(y)
+    return tuple(accepted_filetypes_list)
 
 
 def get_main_color():
