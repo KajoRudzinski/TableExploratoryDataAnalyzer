@@ -5,9 +5,12 @@ def get_accepted_filetypes():
     return io.FileReader().accepted_filetypes
 
 
-def filepath_provided_by_the_user(filepath: str) -> str:
-    print(filepath)
-    return filepath
+def filepath_provided_by_the_user(filepath: str):
+    f = io.FileReader(filepath)
+    f.read()
+    print(f.data)
+
+
 
 
 def run():

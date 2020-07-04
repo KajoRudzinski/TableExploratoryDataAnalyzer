@@ -1,26 +1,33 @@
-import numpy as np
+from pandas import read_csv
+from pandas.errors import EmptyDataError
 import os
 
 
 class FileReader:
     def __init__(self, path=None):
-        self.path = path
+        self.path = str(path)
         self.accepted_filetypes = "csv", "txt"
         self.path_is_accepted = self.is_path_ok()
         self.data = None
-        self.error = False
+        self.error = None
+        self.error_msg = None
 
     def read(self):
         if self.path_is_accepted:
             self._get_data()
         else:
             self.error = True
+            self.error_msg = "File path not accepted. File was not read"
 
     def _get_data(self):
         try:
-            self.data = np.genfromtxt(self.path)
+            self.data = read_csv(self.path)
+        except EmptyDataError:
+            self.error = True
+            self.error_msg = "The file is empty"
         except:
             self.error = True
+            self.error_msg = "Unknown error while reading the file"
 
     def is_file_ok(self):
         if os.path.isfile(self.path):

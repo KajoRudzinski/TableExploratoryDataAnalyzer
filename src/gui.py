@@ -37,6 +37,7 @@ def get_main_font():
 
 
 class GUI(tk.Tk):
+    """ Graphic User Interface constructed out of Header, Body and Footer"""
     def __init__(self):
         super(GUI, self).__init__()
         self.title(msg.get_app_name())
@@ -113,6 +114,8 @@ class GUI(tk.Tk):
 
 
 class Header(tk.Frame):
+    """ Upper side of GUI. Contains buttons to open file, save analysis
+    and a status information"""
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg=get_main_color())
         self.parent = parent
@@ -160,6 +163,8 @@ class Header(tk.Frame):
 
 
 class Body(tk.Frame):
+    """Central part of GUI. Contains space for analysis result
+    (currently text only)"""
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg=get_main_color())
         self.parent = parent
@@ -225,6 +230,8 @@ class Body(tk.Frame):
 
 
 class Footer(tk.Frame):
+    """Goes on the bottom of the GUI. Space for authorship information,
+    release date, etc."""
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg=get_main_color())
         self.parent = parent
