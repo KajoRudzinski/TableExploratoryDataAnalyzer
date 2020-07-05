@@ -2,21 +2,30 @@ import tkinter as tk
 from tkinter import ttk, filedialog
 from src import app, msg
 
+gui = None
+
 
 def run_gui():
+    global gui
     gui = GUI()
     gui.mainloop()
 
 
-def open_file():
-    selected_file = filedialog.askopenfilename(
+def choose_file_to_analyse():
+    filepath = get_filepath_from_filedialog()
+    app.read_data_from_file(filepath)
+    update_status()
+
+
+def get_filepath_from_filedialog():
+    filepath = filedialog.askopenfilename(
         initialdir="/",
         title="Select A File",
         filetype=get_accepted_filetypes_tuple())
-    app.filepath_provided_by_the_user(selected_file)
+    return filepath
 
 
-def save_file():
+def save_analysis_to_file():
     pass
 
 
@@ -26,6 +35,16 @@ def get_accepted_filetypes_tuple():
         y = "{} files".format(x), "*.{}".format(x)
         accepted_filetypes_list.append(y)
     return tuple(accepted_filetypes_list)
+
+
+def update_status():
+    global gui
+    gui.header.current_app_status.set(app.get_current_status())
+
+
+def update_response():
+    global gui
+    gui.body.app_response.set("response")
 
 
 def get_main_color():
@@ -122,19 +141,19 @@ class Header(tk.Frame):
 
         # buttons open & save
         self.button_open_file = ttk.Button(
-            self, text="Open File", command=open_file)
+            self, text="Open File", command=choose_file_to_analyse)
 
         self.button_save_to_file = ttk.Button(
-            self, text="Save Analysis", command=save_file)
+            self, text="Save Analysis", command=save_analysis_to_file)
 
         # status label
-        self.app_status = tk.StringVar()
-        self.app_status.set(msg.get_initial_status())
+        self.current_app_status = tk.StringVar()
+        self.current_app_status.set(app.get_current_status())
 
         self.status_container = tk.Label(self)
         self.status = tk.Label(
             self.status_container,
-            textvariable=self.app_status,
+            textvariable=self.current_app_status,
             font=get_main_font())
 
         self.load_header_widgets()
