@@ -1,7 +1,6 @@
 import tkinter as tk
-from tkinter import ttk, filedialog
-from src import app, msg
-
+from tkinter import ttk, filedialog, scrolledtext
+from src import app
 gui = None
 
 
@@ -13,8 +12,10 @@ def run_gui():
 
 def choose_file_to_analyse():
     filepath = get_filepath_from_filedialog()
-    app.read_data_from_file(filepath)
+    if filepath != "":
+        app.read_data_from_file(filepath)
     update_status()
+    update_response()
 
 
 def get_filepath_from_filedialog():
@@ -43,8 +44,18 @@ def update_status():
 
 
 def update_response():
+    delete_currently_displayed_response()
+    load_response_from_app()
+
+
+def delete_currently_displayed_response():
     global gui
-    gui.body.app_response.set("response")
+    gui.body.response_text.delete('1.0', tk.END)
+
+
+def load_response_from_app():
+    global gui
+    gui.body.response_text.insert(tk.INSERT, app.response_text)
 
 
 def get_main_color():
@@ -59,7 +70,7 @@ class GUI(tk.Tk):
     """ Graphic User Interface constructed out of Header, Body and Footer"""
     def __init__(self):
         super(GUI, self).__init__()
-        self.title(msg.get_app_name())
+        self.title(app.app_name)
         self.width = 800
         self.height = 600
         self.set_size()
@@ -79,27 +90,14 @@ class GUI(tk.Tk):
         self.load_footer()
 
     def load_header(self):
-        self.header.place(
-            relx=0.5,
-            relwidth=1,
-            height=50,
-            anchor=tk.N)
+        self.header.place(relx=0.5, relwidth=1, height=50, anchor=tk.N)
 
     def load_body(self):
         self.body.place(
-            relx=0.5,
-            rely=0.5,
-            relwidth=0.9,
-            relheight=0.7,
-            anchor=tk.CENTER)
+            relx=0.5, rely=0.5, relwidth=0.9, relheight=0.7, anchor=tk.CENTER)
 
     def load_footer(self):
-        self.footer.place(
-            relx=0.5,
-            rely=1,
-            relwidth=1,
-            height=50,
-            anchor=tk.S)
+        self.footer.place(relx=0.5, rely=1, relwidth=1, height=50, anchor=tk.S)
 
     def setup_gui_style(self):
         ttk.Style().configure(
@@ -120,8 +118,7 @@ class GUI(tk.Tk):
 
     def center_selected_window(self, window, window_height, window_width):
         window.geometry('{}x{}+{}+{}'.format(
-            window_width,
-            window_height,
+            window_width, window_height,
             self.center_width(window_width),
             self.center_height(window_height)))
 
@@ -188,64 +185,28 @@ class Body(tk.Frame):
         tk.Frame.__init__(self, parent, bg=get_main_color())
         self.parent = parent
 
-        self.app_response = tk.StringVar()
-        self.app_response.set(msg.get_initial_text_response())
-
         self.fr_response = tk.Frame(self)
-        self.fr_for_scrollable_canvas = tk.Frame(self.fr_response)
-        self.scrollable_canvas = tk.Canvas(self.fr_for_scrollable_canvas)
 
-        self.scrollbar = ttk.Scrollbar(
-            self.fr_for_scrollable_canvas,
-            orient=tk.VERTICAL,
-            command=self.scrollable_canvas.yview)
-
-        self.scrollable_frame = ttk.Frame(self.scrollable_canvas)
+        self.response_text = tk.scrolledtext.ScrolledText(
+            self.fr_response, wrap=tk.WORD, width=20, height=10,
+            font=get_main_font())
 
         self.load_body_widgets()
 
-        self.bind_scrollable_canvas_to_scrolling_action()
-
-        self.response_txt = ttk.Label(
-            self.scrollable_frame,
-            textvariable=self.app_response,
-            font=get_main_font())
-
-        # response text has to loaded after
-        # the setup of the scrollable canvas and configuring scrolling action
-        self.load_response_text()
-
     def load_body_widgets(self):
         self.load_fr_response()
-        self.load_fr_for_scrollable_canvas()
-        self.load_scrollable_canvas()
-        self.load_scrollbar()
+        self.load_response_text()
 
     def load_fr_response(self):
         self.fr_response.place(
             relx=0.5, rely=0.5, relwidth=0.9, relheight=0.9, anchor=tk.CENTER)
 
-    def load_fr_for_scrollable_canvas(self):
-        self.fr_for_scrollable_canvas.pack(
-            side=tk.LEFT, fill=tk.BOTH, expand=1, anchor=tk.CENTER)
-
-    def load_scrollable_canvas(self):
-        self.scrollable_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-
-    def load_scrollbar(self):
-        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-    def configure_scrollable_canvas(self):
-        self.scrollable_canvas.configure(
-            scrollregion=self.scrollable_canvas.bbox("all"))
-
-    def bind_scrollable_canvas_to_scrolling_action(self):
-        self.scrollable_frame.bind("<Configure>", self.configure_scrollable_canvas())
-        self.scrollable_canvas.create_window((0, 0), window=self.scrollable_frame, anchor=tk.NW)
-        self.scrollable_canvas.configure(yscrollcommand=self.scrollbar.set)
-
     def load_response_text(self):
-        self.response_txt.pack()
+        self.response_text.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+        self.load_initial_response()
+
+    def load_initial_response(self):
+        self.response_text.insert(tk.INSERT, app.response_text)
 
 
 class Footer(tk.Frame):
