@@ -31,7 +31,8 @@ def save_analysis_to_file():
 
 
 def analyse_dataset():
-    pass
+    app.analyse()
+    update_response()
 
 
 def get_accepted_filetypes_tuple():

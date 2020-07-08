@@ -1,4 +1,4 @@
-from src import gui, msg, io
+from src import gui, msg, io, analysis
 
 app_name = msg.get_app_name()
 status = msg.format_status("Ready to work")
@@ -37,6 +37,11 @@ def read_data_from_file(filepath: str):
     if f.error is not None:
         update_status(msg.format_status(f.error_msg, error=True))
         update_response_text(msg.get_response_text_error())
+
+
+def analyse():
+    if dataset is not None:
+        update_response_text(analysis.get_column_summary(dataset))
 
 
 def run():
