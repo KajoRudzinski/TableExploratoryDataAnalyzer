@@ -30,6 +30,10 @@ def save_analysis_to_file():
     pass
 
 
+def analyse_dataset():
+    pass
+
+
 def get_accepted_filetypes_tuple():
     accepted_filetypes_list = []
     for x in app.get_accepted_filetypes():
@@ -40,7 +44,7 @@ def get_accepted_filetypes_tuple():
 
 def update_status():
     global gui
-    gui.header.current_app_status.set(app.get_current_status())
+    gui.header.current_app_status.set(app.status)
 
 
 def update_response():
@@ -139,13 +143,16 @@ class Header(tk.Frame):
         # buttons open & save
         self.button_open_file = ttk.Button(
             self, text="Open File", command=choose_file_to_analyse)
-
+        self.button_analyse = ttk.Button(
+            self, text="Analyse", command=analyse_dataset)
         self.button_save_to_file = ttk.Button(
             self, text="Save Analysis", command=save_analysis_to_file)
+        self.buttons = \
+            self.button_open_file, self.button_analyse, self.button_save_to_file
 
         # status label
         self.current_app_status = tk.StringVar()
-        self.current_app_status.set(app.get_current_status())
+        self.current_app_status.set(app.status)
 
         self.status_container = tk.Label(self)
         self.status = tk.Label(
@@ -156,18 +163,13 @@ class Header(tk.Frame):
         self.load_header_widgets()
 
     def load_header_widgets(self):
-        self.load_button_open_file()
-        self.load_button_save_to_file()
+        self.load_buttons()
         self.load_status_container()
         self.load_status()
 
-    def load_button_open_file(self):
-        self.button_open_file.pack(
-            side=tk.LEFT, anchor=tk.CENTER, padx=10)
-
-    def load_button_save_to_file(self):
-        self.button_save_to_file.pack(
-            side=tk.LEFT, anchor=tk.CENTER, padx=10)
+    def load_buttons(self):
+        for b in self.buttons:
+            b.pack(side=tk.LEFT, anchor=tk.CENTER, padx=10)
 
     def load_status_container(self):
         self.status_container.pack(

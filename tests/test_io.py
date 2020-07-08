@@ -15,7 +15,7 @@ def create_test_file(filepath, filedata=""):
     f.close()
 
 
-def create_2_main_files():
+def create_2_main_test_files():
     create_test_file(empty_file)
     create_test_file(valid_csv, filedata=data)
 
@@ -29,7 +29,7 @@ def remove_test_files():
 
 
 def test_filereader_accepts_valid_path():
-    create_2_main_files()
+    create_2_main_test_files()
     for f in valid_paths:
         assert io.FileReader(f).path_is_accepted is True
     remove_test_files()
@@ -38,6 +38,11 @@ def test_filereader_accepts_valid_path():
 def test_filereader_doesnt_accept_invalid_path():
     for f in invalid_paths:
         assert io.FileReader(f).path_is_accepted is False
+
+
+def test_filereader_retreives_filename_from_path():
+    assert io.FileReader("E:/x.csv").file_name == "x.csv"
+    assert io.FileReader("E:/data/x.csv").file_name == "x.csv"
 
 
 def test_filereader_starts_without_data_or_error():

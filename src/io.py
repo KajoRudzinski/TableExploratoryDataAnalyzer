@@ -6,8 +6,9 @@ import os
 class FileReader:
     def __init__(self, path=None):
         self.path = str(path)
+        self.file_name = os.path.basename(self.path)
         self.accepted_filetypes = "csv", "txt"
-        self.path_is_accepted = self.is_path_ok()
+        self.path_is_accepted = self._is_path_ok()
         self.data = None
         self.error = None
         self.error_msg = None
@@ -44,8 +45,9 @@ class FileReader:
         except TypeError:
             return False
 
-    def is_path_ok(self):
+    def _is_path_ok(self):
         if self.is_file_ok() and self.is_filetype_ok():
             return True
         else:
             return False
+
