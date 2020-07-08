@@ -35,7 +35,7 @@ def read_data_from_file(filepath: str):
         update_response_text(msg.get_response_text_file_read_ok(f.file_name))
 
     if f.error is not None:
-        update_status(msg.format_status(f.error_msg))
+        update_status(msg.format_status(f.error_msg, error=True))
         update_response_text(msg.get_response_text_error())
 
 
