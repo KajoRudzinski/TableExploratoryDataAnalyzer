@@ -32,6 +32,7 @@ class Dimension(Column):
     statistical information on it"""
     def __init__(self, column: pd.Series):
         super().__init__(column)
+        self.data_filled_na: pd.Series = column.fillna(value="_None_")
 
     def group_by_distinct(self, rel_or_abs="abs", top_n=None) -> dict:
         if top_n is None:
@@ -45,7 +46,7 @@ class Dimension(Column):
 
     def _group_by(self, rel_or_abs="abs"):
         if rel_or_abs == "abs":
-            return self.data.value_counts(dropna=False)
+            return self.data_filled_na.value_counts()
         if rel_or_abs == "rel":
-            return self.data.value_counts(dropna=False, normalize=True)
+            return self.data_filled_na.value_counts(normalize=True)
 
