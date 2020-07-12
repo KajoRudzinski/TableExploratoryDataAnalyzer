@@ -1,25 +1,26 @@
 import pandas as pd
+import heapq as hq
 
 dimension = "dimension"
 measure = "measure"
 
 
 class Column:
+    """Given Pandas' Series (presumably a column) determines if this a
+    numeric like column (measure) or categorical like column (dimension)
+    and stores basic information"""
     def __init__(self, column: pd.Series):
-        self.data = column
-        self.name = column.name
-        self.type = self.get_type()
-        self.count = column.size
-        self.count_distinct = column.nunique(dropna=False)
-        self.count_null = column.isna().sum()
+        self.data: pd.Series = column
+        self.name: str = str(column.name)
+        self.type: str = self.get_type()
+        self.count: int = column.size
+        self.count_distinct: int = column.nunique(dropna=False)
+        self.count_null: int = column.isna().sum()
 
-    def get_position_dataframe_base_0(self, df: pd.DataFrame):
-        return df.columns.get_loc(self.name)
+    def get_position(self, df: pd.DataFrame, start_at=0) -> int:
+        return df.columns.get_loc(self.name) + start_at
 
-    def get_position_dataframe_base_1(self, df: pd.DataFrame):
-        return df.columns.get_loc(self.name) + 1
-
-    def get_type(self):
+    def get_type(self) -> str:
         if self.data.dtype == "float64" or self.data.dtype == "int64":
             return measure
         else:
@@ -27,6 +28,24 @@ class Column:
 
 
 class Dimension(Column):
+    """Given Pandas' Series with categorical data stores statistical
+    statistical information on it"""
     def __init__(self, column: pd.Series):
         super().__init__(column)
-        self.test = "test"
+
+    def group_by_distinct(self, rel_or_abs="abs", top_n=None) -> dict:
+        if top_n is None:
+            return self._group_by(rel_or_abs=rel_or_abs)
+        else:
+            return self._group_by_top_n(rel_or_abs, top_n)
+
+    def _group_by_top_n(self, rel_or_abs, top_n):
+        d = self._group_by(rel_or_abs=rel_or_abs)
+        return hq.nlargest(top_n, d, key=d.get)
+
+    def _group_by(self, rel_or_abs="abs"):
+        if rel_or_abs == "abs":
+            return self.data.value_counts(dropna=False)
+        if rel_or_abs == "rel":
+            return self.data.value_counts(dropna=False, normalize=True)
+

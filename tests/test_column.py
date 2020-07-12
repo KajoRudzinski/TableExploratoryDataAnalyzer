@@ -21,13 +21,13 @@ def test_store_column_name():
 def test_column_position_base_0():
     t = c.Column(test_df_col_1)
     assert test_df.columns.get_loc("apple") == \
-           t.get_position_dataframe_base_0(test_df)
+           t.get_position(test_df)
 
 
 def test_column_position_base_1():
     t = c.Column(test_df_col_1)
     assert test_df.columns.get_loc("apple") + 1 == \
-           t.get_position_dataframe_base_1(test_df)
+           t.get_position(test_df, start_at=1)
 
 
 def test_column_values_distinct_count_include_null():
@@ -87,7 +87,21 @@ def test_dimension_inheritance_using_count_from_column_class():
     assert c.Dimension(get_first_col(t)).count == 2
 
 
+# TODO: these 2 tests below are not good.
+#  I still don't know if I receive a key-value pair list
+
+def test_dimension_count_distinct_abs_dict():
+    t = pd.DataFrame({"test": ["a", "b", "b", np.nan]})
+    expected_count = [2, 1, 1]
+    dt = c.Dimension(get_first_col(t))
+    test_count = list(dt.group_by_distinct())
+    assert expected_count == test_count
 
 
+def test_dimension_count_distinct_rel_dict():
+    t = pd.DataFrame({"test": ["a", "b", "b", np.nan]})
+    expected_count = [0.5, 0.25, 0.25]
+    dt = c.Dimension(get_first_col(t))
+    test_count = list(dt.group_by_distinct(rel_or_abs="rel"))
+    assert expected_count == test_count
 
-# def test_dimension_count_distinct_dict():
