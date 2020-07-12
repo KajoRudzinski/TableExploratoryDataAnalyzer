@@ -8,7 +8,8 @@ def get_response_text_initial():
 
 def get_response_text_file_read_ok(file: str):
     return "\n\tGreat!\n\n" \
-        "\tClick 'Analyse' to get insights about the dataset inside {}.".format(file)
+        "\tClick 'Analyse' to get insights " \
+           "about the dataset inside the file '{}'.".format(file)
 
 
 def get_response_text_error():
