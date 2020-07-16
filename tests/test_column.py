@@ -10,10 +10,7 @@ test_df = pd.DataFrame(
 test_df_col_1 = test_df.iloc[:, 1]
 
 
-def list_and_sort_dict(d: dict):
-    d = d.items()
-    d = sorted(d)
-    return d
+
 
 
 def test_store_column_as_series():
@@ -93,25 +90,17 @@ def test_dimension_inheritance_using_count_from_column_class():
     assert c.Dimension(get_first_col(t)).count == 2
 
 
-def test_dimension_count_distinct_abs_dict():
-    t = pd.DataFrame({"test": ["a", "b", "b", np.nan]})
+def test_dimension_group_by_normal_size():
+    t = pd.DataFrame({"test": [np.nan, "a", "b", "b", np.nan]})
     dt = c.Dimension(get_first_col(t))
-    test = dt.group_by_distinct()
-    expected = {"_None_": 1, "b": 2, "a": 1}
-    assert list_and_sort_dict(expected) == list_and_sort_dict(test)
+    test = dt.group_by()
+    expected = [('_None_', 2), ('b', 2), ('a', 1)]
+    assert test == expected
 
 
-def test_dimension_count_distinct_rel_dict():
-    t = pd.DataFrame({"test": ["a", "b", "b", np.nan]})
+def test_dimension_group_by_limit_group_size():
+    t = pd.DataFrame({"test": [np.nan, "a", "b", "b", np.nan, "c"]})
     dt = c.Dimension(get_first_col(t))
-    test = dt.group_by_distinct(relative=True)
-    expected = {"_None_": 0.25, "b": 0.5, "a": 0.25}
-    assert list_and_sort_dict(expected) == list_and_sort_dict(test)
-
-
-def test_dimension_count_distinct_abs_dict_top_2():
-    t = pd.DataFrame({"test": ["a", np.nan, "b", "b", np.nan]})
-    dt = c.Dimension(get_first_col(t))
-    test = dt.group_by_distinct(top_n=2)
-    expected = {"_None_": 2, "b": 2}
-    assert list_and_sort_dict(expected) == list_and_sort_dict(test)
+    dt.max_groups_allowed = 2
+    test = dt.group_by()
+    assert len(test) == dt.max_groups_allowed

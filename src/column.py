@@ -1,26 +1,29 @@
 import pandas as pd
-import heapq as hq
 
 dimension = "dimension"
 measure = "measure"
 
 
+def to_list_of_tuples(series: pd.Series):
+    return list(series.to_dict().items())
+
 class Column:
     """Given Pandas' Series (presumably a column) determines if this a
     numeric like column (measure) or categorical like column (dimension)
-    and stores basic information"""
+    and stores basic information."""
     def __init__(self, column: pd.Series):
-        self.data: pd.Series = column
-        self.name: str = str(column.name)
-        self.type: str = self.get_type()
-        self.count: int = column.size
-        self.count_distinct: int = column.nunique(dropna=False)
-        self.count_null: int = column.isna().sum()
+        self.data = column
+        self.name = str(column.name)
+        self.type = self.get_type()
+        self.count = column.size
+        self.count_distinct = column.nunique(dropna=False)
+        self.count_null = column.isna().sum()
+        self.max_groups_allowed = 20    # for group by operations
 
-    def get_position(self, df: pd.DataFrame, start_at=0) -> int:
+    def get_position(self, df: pd.DataFrame, start_at=0):
         return df.columns.get_loc(self.name) + start_at
 
-    def get_type(self) -> str:
+    def get_type(self):
         if self.data.dtype == "float64" or self.data.dtype == "int64":
             return measure
         else:
@@ -29,29 +32,41 @@ class Column:
 
 class Dimension(Column):
     """Given Pandas' Series with categorical data stores statistical
-    statistical information on it"""
+    statistical information on it."""
     def __init__(self, column: pd.Series):
         super().__init__(column)
-        self.data_filled_na: pd.Series = column.fillna(value="_None_")
-        self.groups_allowed = 20
+        self.null_replacement = "_None_"
+        self.data_without_nulls = column.fillna(value=self.null_replacement)
 
-    def group_by_distinct(
-            self, relative: bool = False, top_n: int = None) -> dict:
-        if top_n is None:
-            return self._group_by(relative=relative)
-        else:
-            return self._group_by_top_n(relative=relative, top_n=top_n)
+    def group_by(self, normalize=False):
+        group = self.get_groups(normalize)
+        return self.group_by_considering_size(group)
 
-    def _group_by_top_n(self, relative: bool, top_n: int):
-        d = self._group_by(relative=relative)
-        return hq.nlargest(top_n, d, key=d.get)
+    def group_by_considering_size(self, group):
+        if self.full_group_is_by_allowed(group):
+            return to_list_of_tuples(group)
+        else:
+            return self.get_top_n_from_group(group)
 
-    def _group_by(self, relative: bool):
-        if relative is True:
-            groups = self.data_filled_na.value_counts(normalize=True)
+    def get_top_n_from_group(self, group):
+        return group.nlargest(self.max_groups_allowed, keep="all")
+
+    def get_number_of_groups(self):
+        return self.data_without_nulls.value_counts().len()
+
+    def get_groups(self, normalize):
+        return self.data_without_nulls.value_counts(normalize=normalize)
+
+    def full_group_is_by_allowed(self, group):
+        if len(group) <= self.max_groups_allowed:
+            return True
         else:
-            groups = self.data_filled_na.value_counts()
-        if groups.len() > self.groups_allowed:
-            return groups
-        else:
-            return {"Many values": 1}
+            return False
+
+
+class Measure(Column):
+    """Given Pandas' Series with numerical data stores statistical
+    statistical information on it."""
+    def __init__(self, column: pd.Series):
+        super().__init__(column)
+        self.description = to_list_of_tuples(column.describe())
