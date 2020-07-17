@@ -4,8 +4,9 @@ dimension = "dimension"
 measure = "measure"
 
 
-def to_list_of_tuples(series: pd.Series):
-    return list(series.to_dict().items())
+def to_sorted_list_of_tuples(series: pd.Series):
+    return sorted(list(series.to_dict().items()))
+
 
 class Column:
     """Given Pandas' Series (presumably a column) determines if this a
@@ -44,7 +45,7 @@ class Dimension(Column):
 
     def group_by_considering_size(self, group):
         if self.full_group_is_by_allowed(group):
-            return to_list_of_tuples(group)
+            return to_sorted_list_of_tuples(group)
         else:
             return self.get_top_n_from_group(group)
 
@@ -69,4 +70,15 @@ class Measure(Column):
     statistical information on it."""
     def __init__(self, column: pd.Series):
         super().__init__(column)
-        self.description = to_list_of_tuples(column.describe())
+        self.description = column.describe()
+        self.mean = self.description.at["mean"]
+        self.std_dev = self.description.at["std"]
+        self.min = self.description.at["min"]
+        self.max = self.description.at["max"]
+
+        # refers to interquartile range (IQR)
+        self.q1 = self.description.at["25%"]
+        self.median = self.description.at["50%"]
+        self.q3 = self.description.at["75%"]
+        self.iqr = self.q3 - self.q1
+

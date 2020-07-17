@@ -93,9 +93,14 @@ def test_dimension_inheritance_using_count_from_column_class():
 def test_dimension_group_by_normal_size():
     t = pd.DataFrame({"test": [np.nan, "a", "b", "b", np.nan]})
     dt = c.Dimension(get_first_col(t))
-    test = dt.group_by()
-    expected = [('_None_', 2), ('b', 2), ('a', 1)]
-    assert test == expected
+    assert dt.group_by() == [('_None_', 2), ('a', 1), ('b', 2)]
+
+
+def test_dimension_group_by_normal_size_normalized():
+    t = pd.DataFrame({"test": [np.nan, "a", "b", "b", np.nan]})
+    dt = c.Dimension(get_first_col(t))
+    assert dt.group_by(normalize=True) == [
+        ('_None_', 0.4), ('a', 0.2), ('b', 0.4)]
 
 
 def test_dimension_group_by_limit_group_size():
@@ -104,3 +109,52 @@ def test_dimension_group_by_limit_group_size():
     dt.max_groups_allowed = 2
     test = dt.group_by()
     assert len(test) == dt.max_groups_allowed
+
+
+def test_measure_mean():
+    t = pd.DataFrame({"test": [np.nan, 1, 2, 3, 3, 4, 5, 6]})
+    dt = c.Measure(get_first_col(t))
+    assert dt.mean == 3.4285714285714284
+
+
+def test_measure_std_dev():
+    t = pd.DataFrame({"test": [np.nan, 1, 2, 3, 3, 4, 5, 6]})
+    dt = c.Measure(get_first_col(t))
+    assert dt.std_dev == 1.7182493859684491
+
+
+def test_measure_min():
+    t = pd.DataFrame({"test": [np.nan, 1, 2, 3, 3, 4, 5, 6]})
+    dt = c.Measure(get_first_col(t))
+    assert dt.min == 1
+
+
+def test_measure_max():
+    t = pd.DataFrame({"test": [np.nan, 1, 2, 3, 3, 4, 5, 6]})
+    dt = c.Measure(get_first_col(t))
+    assert dt.max == 6
+
+
+def test_measure_q1():
+    t = pd.DataFrame({"test": [np.nan, 1, 2, 3, 3, 4, 5, 6]})
+    dt = c.Measure(get_first_col(t))
+    assert dt.q1 == 2.5
+
+
+def test_measure_median():
+    t = pd.DataFrame({"test": [np.nan, 1, 2, 3, 3, 4, 5, 6]})
+    dt = c.Measure(get_first_col(t))
+    assert dt.median == 3
+
+
+def test_measure_q3():
+    t = pd.DataFrame({"test": [np.nan, 1, 2, 3, 3, 4, 5, 6]})
+    dt = c.Measure(get_first_col(t))
+    assert dt.q3 == 4.5
+
+
+def test_measure_iqr():
+    t = pd.DataFrame({"test": [np.nan, 1, 2, 3, 3, 4, 5, 6]})
+    dt = c.Measure(get_first_col(t))
+    assert dt.iqr == 2
+
